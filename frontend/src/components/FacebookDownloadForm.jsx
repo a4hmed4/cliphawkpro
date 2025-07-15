@@ -100,7 +100,7 @@ const FacebookDownloadForm = ({ language }) => {
         platform: 'facebook',
       };
       
-      const response = await fetch('http://localhost:8000/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
@@ -114,7 +114,7 @@ const FacebookDownloadForm = ({ language }) => {
         showMessage(data.message, 'success');
         setDownloadFilename(data.filename);
       } else {
-        showMessage(data.detail || t.downloadFailed, 'error');
+        showMessage(data.error || data.detail || t.downloadFailed, 'error');
       }
     } catch (error) {
       clearInterval(progressInterval);
@@ -138,7 +138,7 @@ const FacebookDownloadForm = ({ language }) => {
     if (!filename) return;
     
     try {
-      const response = await fetch(`http://localhost:8000/download/${filename}`);
+      const response = await fetch(`/api/download-file?filename=${encodeURIComponent(filename)}`);
       
       if (response.ok) {
         const blob = await response.blob();
@@ -151,7 +151,7 @@ const FacebookDownloadForm = ({ language }) => {
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
         
-        await fetch(`http://localhost:8000/cleanup/${filename}`, { method: 'DELETE' });
+        await fetch(`/api/cleanup?filename=${encodeURIComponent(filename)}`, { method: 'DELETE' });
         
         if (filename === downloadFilename) setDownloadFilename('');
         showMessage(t.downloadCompleted, 'success');
