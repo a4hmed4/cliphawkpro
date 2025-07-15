@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cliphawk-backend
+    restart: unless-stopped
+    environment:
+      - ENVIRONMENT=production
+      - MAX_FILE_SIZE=500MB
+      - RATE_LIMIT=20
+    volumes:
+      - ./temp_downloads:/app/temp_downloads
+      - ./logs:/app/logs
+    networks:
+      - cliphawk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend (React App)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cliphawk-frontend
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=https://yourdomain.com/api
+      - REACT_APP_GA_ID=GA_MEASUREMENT_ID
+      - REACT_APP_ADSENSE_ID=ca-pub-YOUR_PUBLISHER_ID
+    networks:
+      - cliphawk-network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: cliphawk-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/letsencrypt
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - cliphawk-network
+
+  # Certbot for SSL certificates
+  certbot:
+    image: certbot/certbot
+    container_name: cliphawk-certbot
+    volumes:
+      - ./ssl:/etc/letsencrypt
+      - ./logs/certbot:/var/log/letsencrypt
+    command: certonly --webroot --webroot-path=/var/www/html --email your-email@domain.com --agree-tos --no-eff-email -d yourdomain.com -d www.yourdomain.com
+
+networks:
+  cliphawk-network:
+    driver: bridge
+
+volumes:
+  temp_downloads:
+  logs: 
