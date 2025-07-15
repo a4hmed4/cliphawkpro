@@ -87,7 +87,7 @@ const YouTubeDownloadForm = ({ language }) => {
         ext: selectedExt,
         platform: 'youtube',
       };
-      const response = await fetch('http://localhost:8000/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
