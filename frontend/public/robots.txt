@@ -1,0 +1,14 @@
+غبلاUser-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml
+
+# Disallow admin and API endpoints
+Disallow: /admin/
+Disallow: /api/
+Disallow: /backend/
+Disallow: /temp_downloads/
+
+# Crawl delay
+Crawl-delay: 1 
