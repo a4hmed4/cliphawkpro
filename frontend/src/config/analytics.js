@@ -58,109 +58,19 @@ export const FACEBOOK_PIXEL_CONFIG = {
 };
 
 // Analytics Helper Functions
-export class Analytics {
-  constructor() {
-    this.isInitialized = false;
-    this.init();
-  }
-
-  // تهيئة Google Analytics
-  init() {
-    if (typeof window !== 'undefined' && window.gtag) {
-      this.isInitialized = true;
-      console.log('Analytics initialized successfully');
-    } else {
-      console.warn('Google Analytics not loaded');
-    }
-  }
-
-  // تتبع حدث
-  trackEvent(eventName, parameters = {}) {
-    if (this.isInitialized && window.gtag) {
-      window.gtag('event', eventName, {
-        event_category: 'ClipHawk',
-        event_label: parameters.label || '',
-        value: parameters.value || 0,
-        ...parameters
-      });
-      console.log('Event tracked:', eventName, parameters);
-    }
-  }
-
-  // تتبع تحميل
-  trackDownload(platform, format, quality) {
-    this.trackEvent(GA_CONFIG.EVENTS.DOWNLOAD_STARTED, {
-      platform: platform,
-      format: format,
-      quality: quality,
-      label: `${platform}_${format}_${quality}`
+export const trackEvent = async (event, data = {}) => {
+  try {
+    const res = await fetch('/api/analytics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, data })
     });
+    return await res.json();
+  } catch (err) {
+    // يمكن إضافة منطق معالجة الخطأ هنا
+    return { error: err.message };
   }
-
-  // تتبع نجاح التحميل
-  trackDownloadSuccess(platform, format, quality, fileSize) {
-    this.trackEvent(GA_CONFIG.EVENTS.DOWNLOAD_COMPLETED, {
-      platform: platform,
-      format: format,
-      quality: quality,
-      file_size: fileSize,
-      label: `${platform}_${format}_${quality}_success`
-    });
-  }
-
-  // تتبع فشل التحميل
-  trackDownloadFailed(platform, error) {
-    this.trackEvent(GA_CONFIG.EVENTS.DOWNLOAD_FAILED, {
-      platform: platform,
-      error_message: error,
-      label: `${platform}_failed`
-    });
-  }
-
-  // تتبع تقطيع الفيديو
-  trackTrim(action, inputFormat, outputFormat) {
-    this.trackEvent(GA_CONFIG.EVENTS.TRIM_STARTED, {
-      action: action,
-      input_format: inputFormat,
-      output_format: outputFormat,
-      label: `${action}_${inputFormat}_to_${outputFormat}`
-    });
-  }
-
-  // تتبع اختيار المنصة
-  trackPlatformSelected(platform) {
-    this.trackEvent(GA_CONFIG.EVENTS.PLATFORM_SELECTED, {
-      platform: platform,
-      label: platform
-    });
-  }
-
-  // تتبع تغيير اللغة
-  trackLanguageChanged(language) {
-    this.trackEvent(GA_CONFIG.EVENTS.LANGUAGE_CHANGED, {
-      language: language,
-      label: language
-    });
-  }
-
-  // تتبع الوضع المظلم
-  trackDarkModeToggled(isDark) {
-    this.trackEvent(GA_CONFIG.EVENTS.DARK_MODE_TOGGLED, {
-      dark_mode: isDark,
-      label: isDark ? 'dark' : 'light'
-    });
-  }
-
-  // تتبع عرض الصفحة
-  trackPageView(pageName) {
-    if (this.isInitialized && window.gtag) {
-      window.gtag('config', GA_CONFIG.TRACKING_ID, {
-        page_title: pageName,
-        page_location: window.location.href
-      });
-    }
-  }
-}
+};
 
 // AdSense Helper Functions
 export class AdSense {

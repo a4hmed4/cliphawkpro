@@ -105,7 +105,7 @@ const DownloadFormGeneral = ({ language }) => {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       };
 
-      const response = await fetch('http://localhost:8000/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,10 +144,12 @@ const DownloadFormGeneral = ({ language }) => {
 
   const handleDownload = async (filename) => {
     if (!filename) return;
-
     try {
-      const response = await fetch(`http://localhost:8000/download/${filename}`);
-      
+      const response = await fetch(`/api/download-quality`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: formData.url.trim(), quality: formData.quality }),
+      });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -158,16 +160,6 @@ const DownloadFormGeneral = ({ language }) => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
-        // Clean up the file on the server
-        await fetch(`http://localhost:8000/cleanup/${filename}`, {
-          method: 'DELETE',
-        });
-        
-        if (filename === downloadFilename) {
-          setDownloadFilename('');
-        }
-        
         showMessage(t.downloadCompleted, 'success');
       } else {
         showMessage('Failed to download file', 'error');

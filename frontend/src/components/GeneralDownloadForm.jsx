@@ -87,7 +87,7 @@ const GeneralDownloadForm = ({ language }) => {
         ext: selectedExt,
         platform: 'general',
       };
-      const response = await fetch('http://localhost:8000/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestData),
@@ -120,7 +120,11 @@ const GeneralDownloadForm = ({ language }) => {
   const handleDownload = async (filename) => {
     if (!filename) return;
     try {
-      const response = await fetch(`http://localhost:8000/download/${filename}`);
+      const response = await fetch(`/api/download-quality`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: formData.url.trim(), quality: formData.quality }),
+      });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -131,8 +135,6 @@ const GeneralDownloadForm = ({ language }) => {
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        await fetch(`http://localhost:8000/cleanup/${filename}`, { method: 'DELETE' });
-        if (filename === downloadFilename) setDownloadFilename('');
         showMessage(t.downloadCompleted, 'success');
       } else {
         showMessage('Failed to download file', 'error');
