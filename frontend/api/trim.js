@@ -24,6 +24,7 @@ export default async function handler(req, res) {
     if (fieldname === 'format') format = val;
     if (fieldname === 'filename') filename = val;
   });
+
   bb.on('file', (fieldname, file, info) => {
     const tempDir = path.join(process.cwd(), 'temp_downloads');
     if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
@@ -33,6 +34,7 @@ export default async function handler(req, res) {
     hasFile = true;
     file.pipe(fs.createWriteStream(uploadFilePath));
   });
+
   bb.on('close', () => {
     if (!filePath && filename) {
       const tempDir = path.join(process.cwd(), 'temp_downloads');
@@ -41,22 +43,56 @@ export default async function handler(req, res) {
     if (!filePath || !fs.existsSync(filePath)) {
       return res.status(400).json({ error: 'No file provided' });
     }
+
     const allowedExt = ['.mp4', '.webm', '.mkv', '.avi', '.mp3', '.m4a', '.aac', '.wav'];
     const ext = format.startsWith('.') ? format : '.' + format;
     if (!allowedExt.includes(ext)) {
       return res.status(400).json({ error: 'Invalid output format' });
     }
+
+    // التحقق من صحة المعطيات
+    if (trimStart < 0) {
+      return res.status(400).json({ error: 'Start time cannot be negative' });
+    }
+    if (trimEnd !== null && trimEnd <= trimStart) {
+      return res.status(400).json({ error: 'End time must be greater than start time' });
+    }
+
     const outFile = filePath.replace(/\.[^/.]+$/, '') + '_trimmed' + ext;
     let command = ffmpeg(filePath).setStartTime(trimStart);
-    if (trimEnd && trimEnd > trimStart) command = command.setDuration(trimEnd - trimStart);
-    command.output(outFile).on('end', () => {
-      if (!fs.existsSync(outFile) || fs.statSync(outFile).size < 10 * 1024) {
-        return res.status(500).json({ error: 'Trim failed: Output file not found or too small.' });
-      }
-      res.status(200).json({ message: 'Trim completed successfully', filename: path.basename(outFile) });
-    }).on('error', (err) => {
-      res.status(500).json({ error: 'Trim failed: ' + err.message });
-    }).run();
+
+    if (trimEnd !== null && trimEnd > trimStart) {
+      command = command.setDuration(trimEnd - trimStart);
+    }
+
+    // إعدادات إضافية للجودة
+    if (ext === '.mp4' || ext === '.webm' || ext === '.mkv' || ext === '.avi') {
+      command = command
+        .videoCodec('libx264')
+        .audioCodec('aac')
+        .outputOptions(['-preset', 'fast', '-crf', '23']);
+    } else if (ext === '.mp3') {
+      command = command
+        .audioCodec('libmp3lame')
+        .audioBitrate('192k');
+    } else if (ext === '.m4a' || ext === '.aac') {
+      command = command
+        .audioCodec('aac')
+        .audioBitrate('192k');
+    }
+
+    command.output(outFile)
+      .on('end', () => {
+        if (!fs.existsSync(outFile) || fs.statSync(outFile).size < 10 * 1024) {
+          return res.status(500).json({ error: 'Trim failed: Output file not found or too small.' });
+        }
+        res.status(200).json({ message: 'Trim completed successfully', filename: path.basename(outFile) });
+      })
+      .on('error', (err) => {
+        res.status(500).json({ error: 'Trim failed: ' + err.message });
+      })
+      .run();
   });
+
   req.pipe(bb);
 } 
