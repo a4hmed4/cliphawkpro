@@ -10,7 +10,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "yt-dlp-exec": "^2.4.6",
+    "yt-dlp-exec": "^2.3.0",
     "fluent-ffmpeg": "^2.1.2",
     "uuid": "^9.0.0",
     "busboy": "^1.6.0"
