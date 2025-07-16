@@ -292,7 +292,7 @@ const TrimPage = ({ language }) => {
         fileSize: uploadedFile.size
       });
 
-      const response = await fetch('http://localhost:8000/trim', {
+      const response = await fetch('/api/trim', {
         method: 'POST',
         body: formDataToSend,
       });
@@ -334,7 +334,7 @@ const TrimPage = ({ language }) => {
     if (!processedFilename) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/download/${processedFilename}`);
+      const response = await   fetch(`/api/download-file?filename=${encodeURIComponent(filename)}`);
       
       if (response.ok) {
         const blob = await response.blob();

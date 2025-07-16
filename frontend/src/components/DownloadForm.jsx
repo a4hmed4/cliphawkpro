@@ -105,7 +105,7 @@ const DownloadFormGeneral = ({ language }) => {
         user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
       };
 
-      const response = await fetch('http://localhost:8000/download', {
+      const response = await fetch('/api/download', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +146,7 @@ const DownloadFormGeneral = ({ language }) => {
     if (!filename) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/download/${filename}`);
+      const response = await   fetch(`/api/download-file?filename=${encodeURIComponent(filename)}`);
       
       if (response.ok) {
         const blob = await response.blob();
@@ -160,7 +160,7 @@ const DownloadFormGeneral = ({ language }) => {
         document.body.removeChild(a);
         
         // Clean up the file on the server
-        await fetch(`http://localhost:8000/cleanup/${filename}`, {
+        await fetch(`/api/cleanup?filename=${encodeURIComponent(filename)}`, {
           method: 'DELETE',
         });
         

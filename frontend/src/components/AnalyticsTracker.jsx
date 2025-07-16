@@ -14,7 +14,7 @@ const AnalyticsTracker = ({
       
       // إرسال أبعاد مخصصة
       if (window.gtag && Object.keys(customDimensions).length > 0) {
-        window.gtag('config', 'G-XXXXXXXXXX', {
+        window.gtag('config', 'G-ZL5348H09N', {
           custom_map: customDimensions
         });
       }
