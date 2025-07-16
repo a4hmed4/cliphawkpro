@@ -39,7 +39,12 @@
     <meta http-equiv="X-Frame-Options" content="DENY" />
     <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://connect.facebook.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http://localhost:8000 https://www.google-analytics.com;" />
+    <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com 'unsafe-inline' 'unsafe-eval';
+  img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com;
+  connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com;
+">
     
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -49,7 +54,7 @@
     <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://yourdomain.com" />
+    <link rel="canonical" href="https://cliphawkpro.vercel.app" />
     
     <!-- Manifest -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
@@ -115,7 +120,7 @@
       "@type": "WebApplication",
       "name": "ClipHawk Pro",
       "description": "تحميل الفيديوهات باحترافية من جميع المنصات",
-      "url": "https://yourdomain.com",
+      "url": "https://cliphawkpro.vercel.app",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Web Browser",
       "offers": {
