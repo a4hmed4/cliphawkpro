@@ -26,6 +26,17 @@ function App() {
     }
   }, [darkMode]);
 
+  React.useEffect(() => {
+    let base = 'cliphawkpro.vercel.app';
+    if (currentPage === 'tiktok') {
+      document.title = base + '/tiktok';
+    } else if (currentPage === 'youtube') {
+      document.title = base;
+    } else {
+      document.title = base + '/' + currentPage;
+    }
+  }, [currentPage]);
+
   const renderPage = () => {
     switch (currentPage) {
       case 'youtube':
